@@ -7,12 +7,15 @@ import (
 )
 
 var rootCmd = &cobra.Command{
-	Use:     "wimkube",
-	Short:   "Interactive Kubernetes CLI.",
-	Version: "v1.0.0",
+	Use:   "wimkube",
+	Short: "Interactive Kubernetes CLI.",
 	Run: func(cmd *cobra.Command, args []string) {
 		_ = cmd.Help()
 	},
+}
+
+func SetVersion(version string) {
+	rootCmd.Version = version
 }
 
 func Execute() {
@@ -25,7 +28,7 @@ func Execute() {
 func init() {
 	rootCmd.PersistentFlags().BoolP("help", "h", false, "Display this help message.")
 	rootCmd.Flags().BoolP("version", "v", false, "Display version info.")
-	rootCmd.SetVersionTemplate("{{ .Version }}\n")
+	rootCmd.SetVersionTemplate("wimkube version: {{ .Version }}\n")
 	rootCmd.CompletionOptions.DisableDefaultCmd = true
 	rootCmd.SetHelpCommand(&cobra.Command{Hidden: true})
 	rootCmd.SilenceUsage = true
