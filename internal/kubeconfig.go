@@ -2,8 +2,6 @@ package internal
 
 import (
 	"fmt"
-	"os"
-	"path/filepath"
 	"sort"
 
 	"k8s.io/client-go/tools/clientcmd"
@@ -11,38 +9,26 @@ import (
 )
 
 type Kubeconfig struct {
-	KubeconfigPath string
+	KubeconfigFilename string
 }
 
-func NewKubeconfig() (*Kubeconfig, error) {
+func NewKubeconfig(kubeconfigFilename string) (*Kubeconfig, error) {
 	k := &Kubeconfig{}
-	if err := k.init(); err != nil {
+	if err := k.init(kubeconfigFilename); err != nil {
 		return nil, err
 	}
 
 	return k, nil
 }
 
-func (k *Kubeconfig) init() error {
-	// Try to get kubeconfig path from KUBECONFIG environment variable
-	kubeconfigPath := os.Getenv("KUBECONFIG")
-
-	// If not set, use default location
-	if kubeconfigPath == "" {
-		homeDir, err := os.UserHomeDir()
-		if err != nil {
-			return fmt.Errorf("could not determine home directory: %w", err)
-		}
-		kubeconfigPath = filepath.Join(homeDir, ".kube", "config")
-	}
-
-	k.KubeconfigPath = kubeconfigPath
+func (k *Kubeconfig) init(kubeconfigFilename string) error {
+	k.KubeconfigFilename = kubeconfigFilename
 
 	return nil
 }
 
 func (k *Kubeconfig) LoadContexts() (*api.Config, error) {
-	config, err := clientcmd.LoadFromFile(k.KubeconfigPath)
+	config, err := clientcmd.LoadFromFile(k.KubeconfigFilename)
 	if err != nil {
 		return nil, fmt.Errorf("could not load kubeconfig: %w", err)
 	}
@@ -89,7 +75,7 @@ func (k *Kubeconfig) SetContext(contextName string) error {
 
 	config.CurrentContext = contextName
 
-	if err := clientcmd.WriteToFile(*config, k.KubeconfigPath); err != nil {
+	if err := clientcmd.WriteToFile(*config, k.KubeconfigFilename); err != nil {
 		return fmt.Errorf("could not write kubeconfig: %w", err)
 	}
 
