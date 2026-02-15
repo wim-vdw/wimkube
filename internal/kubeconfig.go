@@ -2,6 +2,7 @@ package internal
 
 import (
 	"fmt"
+	"os"
 	"sort"
 
 	"k8s.io/client-go/tools/clientcmd"
@@ -10,6 +11,13 @@ import (
 
 type Kubeconfig struct {
 	KubeconfigFilename string
+}
+
+type KubeconfigManager interface {
+	GetCurrentContext() (string, error)
+	SetContext(contextName string) error
+	GetContextNames() ([]string, error)
+	LoadContexts() (*api.Config, error)
 }
 
 func NewKubeconfig(kubeconfigFilename string) (*Kubeconfig, error) {
@@ -23,6 +31,9 @@ func NewKubeconfig(kubeconfigFilename string) (*Kubeconfig, error) {
 
 func (k *Kubeconfig) init(kubeconfigFilename string) error {
 	k.KubeconfigFilename = kubeconfigFilename
+	if _, err := os.Stat(k.KubeconfigFilename); err != nil {
+		return fmt.Errorf("kubeconfig file not accessible: %w", err)
+	}
 
 	return nil
 }
@@ -30,7 +41,7 @@ func (k *Kubeconfig) init(kubeconfigFilename string) error {
 func (k *Kubeconfig) LoadContexts() (*api.Config, error) {
 	config, err := clientcmd.LoadFromFile(k.KubeconfigFilename)
 	if err != nil {
-		return nil, fmt.Errorf("could not load kubeconfig: %w", err)
+		return nil, fmt.Errorf("could not load kubeconfig from %s: %w", k.KubeconfigFilename, err)
 	}
 
 	return config, nil
@@ -71,6 +82,10 @@ func (k *Kubeconfig) SetContext(contextName string) error {
 
 	if _, exists := config.Contexts[contextName]; !exists {
 		return fmt.Errorf("context '%s' does not exist", contextName)
+	}
+
+	if config.CurrentContext == contextName {
+		return nil
 	}
 
 	config.CurrentContext = contextName

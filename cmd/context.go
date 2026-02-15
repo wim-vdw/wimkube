@@ -117,7 +117,6 @@ func execContextList(cmd *cobra.Command, args []string) error {
 }
 
 func execContextGet(cmd *cobra.Command, args []string) error {
-	fmt.Println(viper.GetString("kubeconfig"))
 	kc, err := internal.NewKubeconfig(viper.GetString("kubeconfig"))
 	if err != nil {
 		return err
