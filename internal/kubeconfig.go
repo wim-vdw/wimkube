@@ -67,9 +67,6 @@ func (k *Kubeconfig) GetContextNames() ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	if len(config.Contexts) == 0 {
-		return nil, fmt.Errorf("no contexts found in kubeconfig")
-	}
 
 	contextNames := make([]string, 0, len(config.Contexts))
 	for context := range config.Contexts {

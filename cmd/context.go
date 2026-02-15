@@ -101,6 +101,10 @@ func execContextList(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+	if len(contextNames) == 0 {
+		fmt.Println("No contexts found in kubeconfig.")
+		return nil
+	}
 	for _, contextName := range contextNames {
 		fmt.Println(contextName)
 	}
