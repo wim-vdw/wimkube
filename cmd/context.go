@@ -81,7 +81,6 @@ func showContextMenu() error {
 				huh.NewSelect[string]().
 					Title("Select a context").
 					Options(huh.NewOptions(contextNames...)...).
-					Height(10).
 					Value(&contextName),
 			),
 		)
