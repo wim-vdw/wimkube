@@ -81,10 +81,11 @@ func showNamespaceMenu() error {
 		}
 		currentNamespace, _ := kc.GetCurrentNamespace()
 		namespace = currentNamespace
+		title := fmt.Sprintf("Select a namespace (context: %s)", currentContext)
 		form := huh.NewForm(
 			huh.NewGroup(
 				huh.NewSelect[string]().
-					Title("Select a namespace").
+					Title(title).
 					Options(huh.NewOptions(namespaces...)...).
 					Value(&namespace),
 			),
