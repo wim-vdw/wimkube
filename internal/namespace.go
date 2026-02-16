@@ -24,10 +24,6 @@ func NewNamespace(kubeconfigFilename, contextName string) (*Namespace, error) {
 	return n, nil
 }
 
-func (n *Namespace) GetCurrenNamespace() (string, error) {
-	return "default", nil
-}
-
 func (n *Namespace) GetNamespaces() ([]string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 1000*time.Millisecond)
 	defer cancel()

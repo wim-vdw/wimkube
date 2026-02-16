@@ -105,6 +105,16 @@ func execNamespaceGet(cmd *cobra.Command, args []string) error {
 }
 
 func execNamespaceSet(cmd *cobra.Command, args []string) error {
+	namespace := args[0]
+	kc, err := internal.NewKubeconfig(viper.GetString("kubeconfig"))
+	if err != nil {
+		return err
+	}
+	err = kc.SetNamespace(namespace)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("Current namespace set to: %s\n", namespace)
 
 	return nil
 }
