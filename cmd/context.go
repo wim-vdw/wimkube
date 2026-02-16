@@ -74,6 +74,8 @@ func showContextMenu() error {
 		if len(contextNames) == 0 {
 			return fmt.Errorf("no contexts found in kubeconfig")
 		}
+		currentContext, _ := kc.GetCurrentContext()
+		contextName = currentContext
 		contextOptions := make([]huh.Option[string], len(contextNames))
 		for i, name := range contextNames {
 			contextOptions[i] = huh.NewOption(name, name)
