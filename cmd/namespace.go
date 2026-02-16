@@ -38,7 +38,6 @@ var namespaceSetCmd = &cobra.Command{
 
 func showNamespaceMenu() error {
 	var option, namespace string
-
 	form := huh.NewForm(
 		huh.NewGroup(
 			huh.NewSelect[string]().
@@ -51,12 +50,10 @@ func showNamespaceMenu() error {
 				Value(&option),
 		),
 	)
-
 	err := form.Run()
 	if err != nil {
 		return err
 	}
-
 	switch option {
 	case "1":
 		return execNamespaceGet(nil, nil)
@@ -71,11 +68,11 @@ func showNamespaceMenu() error {
 		if err != nil {
 			return err
 		}
-		n, err := internal.NewNamespace(viper.GetString("kubeconfig"), currentContext)
+		c, err := internal.NewClient(viper.GetString("kubeconfig"), currentContext)
 		if err != nil {
 			return err
 		}
-		namespaces, err := n.GetNamespaces()
+		namespaces, err := c.GetNamespaces()
 		if err != nil {
 			return err
 		}
@@ -109,11 +106,11 @@ func execNamespaceList(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	n, err := internal.NewNamespace(viper.GetString("kubeconfig"), currentContext)
+	c, err := internal.NewClient(viper.GetString("kubeconfig"), currentContext)
 	if err != nil {
 		return err
 	}
-	namespaces, err := n.GetNamespaces()
+	namespaces, err := c.GetNamespaces()
 	if err != nil {
 		return err
 	}

@@ -38,7 +38,6 @@ var contextSetCmd = &cobra.Command{
 
 func showContextMenu() error {
 	var option, contextName string
-
 	form := huh.NewForm(
 		huh.NewGroup(
 			huh.NewSelect[string]().
@@ -51,12 +50,10 @@ func showContextMenu() error {
 				Value(&option),
 		),
 	)
-
 	err := form.Run()
 	if err != nil {
 		return err
 	}
-
 	switch option {
 	case "1":
 		return execContextGet(nil, nil)
