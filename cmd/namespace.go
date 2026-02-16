@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/charmbracelet/huh"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/wim-vdw/wimkube/internal"
@@ -12,7 +13,7 @@ var namespaceCmd = &cobra.Command{
 	Use:   "namespace",
 	Short: "Manage namespaces.",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return showContextMenu()
+		return showNamespaceMenu()
 	},
 }
 
@@ -33,6 +34,36 @@ var namespaceSetCmd = &cobra.Command{
 	Short: "Set current namespace.",
 	Args:  cobra.ExactArgs(1),
 	RunE:  execNamespaceSet,
+}
+
+func showNamespaceMenu() error {
+	var option string
+
+	form := huh.NewForm(
+		huh.NewGroup(
+			huh.NewSelect[string]().
+				Title("Select an option").
+				Options(
+					huh.NewOption("Get current namespace", "1"),
+					huh.NewOption("List namespaces", "2"),
+				).
+				Value(&option),
+		),
+	)
+
+	err := form.Run()
+	if err != nil {
+		return err
+	}
+
+	switch option {
+	case "1":
+		return execNamespaceGet(nil, nil)
+	case "2":
+		return execNamespaceList(nil, nil)
+	}
+
+	return nil
 }
 
 func execNamespaceList(cmd *cobra.Command, args []string) error {
