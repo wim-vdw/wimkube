@@ -76,15 +76,11 @@ func showContextMenu() error {
 		}
 		currentContext, _ := kc.GetCurrentContext()
 		contextName = currentContext
-		contextOptions := make([]huh.Option[string], len(contextNames))
-		for i, name := range contextNames {
-			contextOptions[i] = huh.NewOption(name, name)
-		}
 		form := huh.NewForm(
 			huh.NewGroup(
 				huh.NewSelect[string]().
 					Title("Select a context").
-					Options(contextOptions...).
+					Options(huh.NewOptions(contextNames...)...).
 					Value(&contextName),
 			),
 		)
