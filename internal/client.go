@@ -3,44 +3,44 @@ package internal
 import (
 	"context"
 	"fmt"
+	"os"
 	"time"
 
+	"golang.org/x/term"
+
 	"github.com/spf13/viper"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/tools/remotecommand"
+	"k8s.io/kubectl/pkg/scheme"
 )
 
 type Client struct {
 	client kubernetes.Interface
+	config *rest.Config
 }
 
-func NewClientFromKubeconfig(kubeconfigPath string, contextName string) (kubernetes.Interface, error) {
-	loadingRules := &clientcmd.ClientConfigLoadingRules{ExplicitPath: kubeconfigPath}
+func NewClient(kubeconfigFilename, contextName string) (*Client, error) {
+	loadingRules := &clientcmd.ClientConfigLoadingRules{ExplicitPath: kubeconfigFilename}
 	configOverrides := &clientcmd.ConfigOverrides{}
 	configOverrides.CurrentContext = contextName
 	clientConfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules, configOverrides)
 	config, err := clientConfig.ClientConfig()
 	if err != nil {
-		return nil, fmt.Errorf("unable to load kubeconfig from %s: %w", kubeconfigPath, err)
+		return nil, fmt.Errorf("unable to load kubeconfig from %s: %w", kubeconfigFilename, err)
 	}
 	client, err := kubernetes.NewForConfig(config)
 	if err != nil {
 		return nil, fmt.Errorf("unable to create a client: %w", err)
 	}
 
-	return client, nil
-}
-
-func NewClient(kubeconfigFilename, contextName string) (*Client, error) {
-	c := &Client{}
-	client, err := NewClientFromKubeconfig(kubeconfigFilename, contextName)
-	if err != nil {
-		return nil, err
-	}
-	c.client = client
-
-	return c, nil
+	return &Client{
+		client: client,
+		config: config,
+	}, nil
 }
 
 func (c *Client) GetNamespaces() ([]string, error) {
@@ -89,4 +89,63 @@ func (c *Client) GetContainers(namespace, podName string) ([]string, error) {
 	}
 
 	return out, nil
+}
+
+func (c *Client) ExecInContainer(namespace, podName, containerName string) error {
+	ctx := context.Background()
+
+	req := c.client.CoreV1().RESTClient().Post().
+		Resource("pods").
+		Name(podName).
+		Namespace(namespace).
+		SubResource("exec").
+		VersionedParams(&corev1.PodExecOptions{
+			Container: containerName,
+			Command:   []string{"/bin/sh", "-c", "command -v bash >/dev/null 2>&1 && bash || sh"},
+			Stdin:     true,
+			Stdout:    true,
+			Stderr:    true,
+			TTY:       true,
+		}, scheme.ParameterCodec)
+
+	executor, err := remotecommand.NewSPDYExecutor(c.config, "POST", req.URL())
+	if err != nil {
+		return fmt.Errorf("unable to create executor: %w", err)
+	}
+
+	// Save original terminal state
+	oldState, err := setupTerminal(os.Stdin)
+	if err != nil {
+		return fmt.Errorf("unable to setup terminal: %w", err)
+	}
+	defer func(f *os.File, state *term.State) {
+		err := restoreTerminal(f, state)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "unable to restore terminal: %v\n", err)
+		}
+	}(os.Stdin, oldState)
+
+	err = executor.StreamWithContext(ctx, remotecommand.StreamOptions{
+		Stdin:  os.Stdin,
+		Stdout: os.Stdout,
+		Stderr: os.Stderr,
+		Tty:    true,
+	})
+	if err != nil {
+		return fmt.Errorf("unable to execute command: %w", err)
+	}
+
+	return nil
+}
+
+func setupTerminal(f *os.File) (*term.State, error) {
+	state, err := term.MakeRaw(int(f.Fd()))
+	if err != nil {
+		return nil, err
+	}
+	return state, nil
+}
+
+func restoreTerminal(f *os.File, state *term.State) error {
+	return term.Restore(int(f.Fd()), state)
 }
