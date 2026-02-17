@@ -72,6 +72,10 @@ func showPodMenu() error {
 		if err != nil {
 			return err
 		}
+		if len(pods) == 0 {
+			fmt.Printf("No resources found in %s namespace.", currentNamespace)
+			return nil
+		}
 		title := fmt.Sprintf("Select a pod (namespace: %s)", currentNamespace)
 		form := huh.NewForm(
 			huh.NewGroup(
@@ -111,6 +115,10 @@ func execPodList(cmd *cobra.Command, args []string) error {
 	pods, err := c.GetPods(currentNamespace)
 	if err != nil {
 		return err
+	}
+	if len(pods) == 0 {
+		fmt.Printf("No resources found in %s namespace.", currentNamespace)
+		return nil
 	}
 	for _, podName := range pods {
 		fmt.Println(podName)
