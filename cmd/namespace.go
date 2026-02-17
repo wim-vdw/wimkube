@@ -44,8 +44,8 @@ func showNamespaceMenu() error {
 				Title("Select an option").
 				Options(
 					huh.NewOption("Get current namespace", "1"),
-					huh.NewOption("List namespaces", "2"),
-					huh.NewOption("Set namespace", "3"),
+					huh.NewOption("List all namespaces", "2"),
+					huh.NewOption("Set current namespace", "3"),
 				).
 				Value(&option),
 		),

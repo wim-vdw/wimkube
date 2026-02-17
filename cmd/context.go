@@ -44,8 +44,8 @@ func showContextMenu() error {
 				Title("Select an option").
 				Options(
 					huh.NewOption("Get current context", "1"),
-					huh.NewOption("List contexts", "2"),
-					huh.NewOption("Set context", "3"),
+					huh.NewOption("List all contexts", "2"),
+					huh.NewOption("Set current context", "3"),
 				).
 				Value(&option),
 		),

@@ -38,7 +38,7 @@ var podContainerExecCmd = &cobra.Command{
 }
 
 func showPodMenu() error {
-	var option, podName string
+	var option, podName, containerName string
 	kc, err := internal.NewKubeconfig(viper.GetString("kubeconfig"))
 	if err != nil {
 		return err
@@ -61,8 +61,9 @@ func showPodMenu() error {
 			huh.NewSelect[string]().
 				Title(title).
 				Options(
-					huh.NewOption("List pods", "1"),
-					huh.NewOption("List containers for a pod", "2"),
+					huh.NewOption("List all pods", "1"),
+					huh.NewOption("List all containers of a pod", "2"),
+					huh.NewOption("Execute an interactive shell in a container of a pod", "3"),
 				).
 				Value(&option),
 		),
@@ -97,6 +98,46 @@ func showPodMenu() error {
 			return err
 		}
 		return execPodContainerList(nil, []string{podName})
+	case "3":
+		pods, err := c.GetPods(currentNamespace)
+		if err != nil {
+			return err
+		}
+		if len(pods) == 0 {
+			fmt.Printf("No resources found in %s namespace.", currentNamespace)
+			return nil
+		}
+		title := fmt.Sprintf("Select a pod (namespace: %s)", currentNamespace)
+		form := huh.NewForm(
+			huh.NewGroup(
+				huh.NewSelect[string]().
+					Title(title).
+					Options(huh.NewOptions(pods...)...).
+					Value(&podName),
+			),
+		)
+		err = form.Run()
+		if err != nil {
+			return err
+		}
+		containers, err := c.GetContainers(currentNamespace, podName)
+		if err != nil {
+			return err
+		}
+		title = fmt.Sprintf("Select a container (namespace: %s, pod: %s)", currentNamespace, podName)
+		form = huh.NewForm(
+			huh.NewGroup(
+				huh.NewSelect[string]().
+					Title(title).
+					Options(huh.NewOptions(containers...)...).
+					Value(&containerName),
+			),
+		)
+		err = form.Run()
+		if err != nil {
+			return err
+		}
+		return execPodContainerExec(nil, []string{podName, containerName})
 	}
 
 	return nil
