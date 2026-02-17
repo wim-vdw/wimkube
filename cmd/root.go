@@ -41,9 +41,11 @@ func init() {
 	rootCmd.PersistentFlags().BoolP("help", "h", false, "Display this help message.")
 	rootCmd.Flags().BoolP("version", "v", false, "Display version info.")
 	rootCmd.PersistentFlags().StringP("kubeconfig", "", "", "Path to the kubeconfig file to use. If not specified, the default kubeconfig will be used.")
+	rootCmd.PersistentFlags().IntP("request-timeout", "t", 30, "Timeout in seconds for Kubernetes API requests.")
 	rootCmd.SetVersionTemplate("wimkube version: {{ .Version }}\n")
 	rootCmd.CompletionOptions.DisableDefaultCmd = true
 	rootCmd.SetHelpCommand(&cobra.Command{Hidden: true})
 	rootCmd.SilenceUsage = true
 	_ = viper.BindPFlag("kubeconfig", rootCmd.PersistentFlags().Lookup("kubeconfig"))
+	_ = viper.BindPFlag("request-timeout", rootCmd.PersistentFlags().Lookup("request-timeout"))
 }

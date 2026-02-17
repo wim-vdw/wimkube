@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/spf13/viper"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
@@ -43,7 +44,7 @@ func NewClient(kubeconfigFilename, contextName string) (*Client, error) {
 }
 
 func (c *Client) GetNamespaces() ([]string, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 1000*time.Millisecond)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(viper.GetInt("request-timeout"))*time.Second)
 	defer cancel()
 
 	namespaces, err := c.client.CoreV1().Namespaces().List(ctx, metav1.ListOptions{})
@@ -59,7 +60,7 @@ func (c *Client) GetNamespaces() ([]string, error) {
 }
 
 func (c *Client) GetPods(namespace string) ([]string, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 1000*time.Millisecond)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(viper.GetInt("request-timeout"))*time.Second)
 	defer cancel()
 
 	pods, err := c.client.CoreV1().Pods(namespace).List(ctx, metav1.ListOptions{})
@@ -75,7 +76,7 @@ func (c *Client) GetPods(namespace string) ([]string, error) {
 }
 
 func (c *Client) GetContainers(namespace, podName string) ([]string, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 1000*time.Millisecond)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(viper.GetInt("request-timeout"))*time.Second)
 	defer cancel()
 
 	pod, err := c.client.CoreV1().Pods(namespace).Get(ctx, podName, metav1.GetOptions{})
