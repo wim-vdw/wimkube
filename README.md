@@ -125,7 +125,7 @@ wimkube pod exec <pod-name> <container-name>
 ### Switch to a different context
 
 ```bash
-# Interactive
+# Interactive - follow the prompts
 wimkube context
 
 # Direct command
@@ -135,7 +135,7 @@ wimkube context set production-cluster
 ### Change namespace
 
 ```bash
-# Interactive
+# Interactive - follow the prompts
 wimkube namespace
 
 # Direct command
