@@ -17,7 +17,7 @@ type KubeConfig struct {
 type KubeConfigManager interface {
 	GetCurrentContext() (string, error)
 	SetContext(contextName string) error
-	GetContextNames() ([]string, error)
+	GetContextNames() []string
 	GetCurrentNamespace() (string, error)
 	SetNamespace(namespace string) error
 }
