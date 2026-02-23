@@ -65,9 +65,6 @@ func showContextMenu() error {
 			return err
 		}
 		contextNames := kc.GetContextNames()
-		if len(contextNames) == 0 {
-			return fmt.Errorf("no contexts found in kubeconfig")
-		}
 		currentContext, _ := kc.GetCurrentContext()
 		contextName = currentContext
 		form := huh.NewForm(
