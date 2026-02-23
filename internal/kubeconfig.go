@@ -10,7 +10,7 @@ import (
 )
 
 type KubeConfig struct {
-	KubeconfigFilename string
+	FilePath string
 }
 
 type KubeconfigManager interface {
@@ -32,8 +32,8 @@ func NewKubeconfig(kubeconfigFilename string) (*KubeConfig, error) {
 }
 
 func (k *KubeConfig) init(kubeconfigFilename string) error {
-	k.KubeconfigFilename = kubeconfigFilename
-	if _, err := os.Stat(k.KubeconfigFilename); err != nil {
+	k.FilePath = kubeconfigFilename
+	if _, err := os.Stat(k.FilePath); err != nil {
 		return fmt.Errorf("kubeconfig file not accessible: %w", err)
 	}
 
@@ -41,9 +41,9 @@ func (k *KubeConfig) init(kubeconfigFilename string) error {
 }
 
 func (k *KubeConfig) LoadContexts() (*api.Config, error) {
-	config, err := clientcmd.LoadFromFile(k.KubeconfigFilename)
+	config, err := clientcmd.LoadFromFile(k.FilePath)
 	if err != nil {
-		return nil, fmt.Errorf("could not load kubeconfig from %s: %w", k.KubeconfigFilename, err)
+		return nil, fmt.Errorf("could not load kubeconfig from %s: %w", k.FilePath, err)
 	}
 
 	return config, nil
@@ -73,7 +73,7 @@ func (k *KubeConfig) SetContext(contextName string) error {
 		return nil
 	}
 	config.CurrentContext = contextName
-	if err := clientcmd.WriteToFile(*config, k.KubeconfigFilename); err != nil {
+	if err := clientcmd.WriteToFile(*config, k.FilePath); err != nil {
 		return fmt.Errorf("could not write kubeconfig: %w", err)
 	}
 
@@ -129,7 +129,7 @@ func (k *KubeConfig) SetNamespace(namespace string) error {
 		return nil
 	}
 	ctx.Namespace = namespace
-	if err := clientcmd.WriteToFile(*config, k.KubeconfigFilename); err != nil {
+	if err := clientcmd.WriteToFile(*config, k.FilePath); err != nil {
 		return fmt.Errorf("could not write kubeconfig: %w", err)
 	}
 
