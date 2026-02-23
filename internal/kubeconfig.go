@@ -99,15 +99,15 @@ func (k *KubeConfig) GetCurrentNamespace() (string, error) {
 	if k.Config.CurrentContext == "" {
 		return "", fmt.Errorf("no current context set in kubeconfig")
 	}
-	ctx, exists := k.Config.Contexts[k.Config.CurrentContext]
+	context, exists := k.Config.Contexts[k.Config.CurrentContext]
 	if !exists {
 		return "", fmt.Errorf("current context '%s' does not exist", k.Config.CurrentContext)
 	}
-	if ctx.Namespace == "" {
+	if context.Namespace == "" {
 		return "default", nil
 	}
 
-	return ctx.Namespace, nil
+	return context.Namespace, nil
 }
 
 // SetNamespace sets the namespace for the current context in the kubeconfig file.
