@@ -23,6 +23,8 @@ type Client struct {
 	config *rest.Config
 }
 
+// NewClient creates a new Kubernetes client using the specified kubeconfig file and context name.
+// It returns an error if the kubeconfig file cannot be loaded or if the client cannot be created.
 func NewClient(kubeconfigFilename, contextName string) (*Client, error) {
 	loadingRules := &clientcmd.ClientConfigLoadingRules{ExplicitPath: kubeconfigFilename}
 	configOverrides := &clientcmd.ConfigOverrides{}
@@ -43,6 +45,8 @@ func NewClient(kubeconfigFilename, contextName string) (*Client, error) {
 	}, nil
 }
 
+// GetNamespaces retrieves the list of namespaces in the Kubernetes cluster.
+// It returns a slice of namespace names and an error if the namespaces cannot be retrieved.
 func (c *Client) GetNamespaces() ([]string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(viper.GetInt("request-timeout"))*time.Second)
 	defer cancel()
@@ -59,6 +63,8 @@ func (c *Client) GetNamespaces() ([]string, error) {
 	return out, nil
 }
 
+// GetPods retrieves the list of pods in the specified namespace.
+// It returns a slice of pod names and an error if the pods cannot be retrieved.
 func (c *Client) GetPods(namespace string) ([]string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(viper.GetInt("request-timeout"))*time.Second)
 	defer cancel()
@@ -75,6 +81,8 @@ func (c *Client) GetPods(namespace string) ([]string, error) {
 	return out, nil
 }
 
+// GetContainers retrieves the list of container names in the specified pod and namespace.
+// It returns a slice of container names and an error if the pod cannot be retrieved.
 func (c *Client) GetContainers(namespace, podName string) ([]string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(viper.GetInt("request-timeout"))*time.Second)
 	defer cancel()
@@ -91,6 +99,8 @@ func (c *Client) GetContainers(namespace, podName string) ([]string, error) {
 	return out, nil
 }
 
+// ExecInContainer executes a shell command in the specified container, pod, and namespace.
+// It returns an error if the command cannot be executed or if there is an issue with the terminal setup.
 func (c *Client) ExecInContainer(namespace, podName, containerName string) error {
 	ctx := context.Background()
 
@@ -138,6 +148,8 @@ func (c *Client) ExecInContainer(namespace, podName, containerName string) error
 	return nil
 }
 
+// setupTerminal puts the terminal into raw mode and returns the original terminal state.
+// It returns an error if the terminal cannot be put into raw mode.
 func setupTerminal(f *os.File) (*term.State, error) {
 	state, err := term.MakeRaw(int(f.Fd()))
 	if err != nil {
@@ -146,6 +158,8 @@ func setupTerminal(f *os.File) (*term.State, error) {
 	return state, nil
 }
 
+// restoreTerminal restores the terminal to its original state.
+// It returns an error if the terminal cannot be restored.
 func restoreTerminal(f *os.File, state *term.State) error {
 	return term.Restore(int(f.Fd()), state)
 }
