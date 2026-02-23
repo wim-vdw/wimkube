@@ -9,7 +9,7 @@ import (
 	"k8s.io/client-go/tools/clientcmd/api"
 )
 
-type Kubeconfig struct {
+type KubeConfig struct {
 	KubeconfigFilename string
 }
 
@@ -22,8 +22,8 @@ type KubeconfigManager interface {
 	SetNamespace(namespace string) error
 }
 
-func NewKubeconfig(kubeconfigFilename string) (*Kubeconfig, error) {
-	k := &Kubeconfig{}
+func NewKubeconfig(kubeconfigFilename string) (*KubeConfig, error) {
+	k := &KubeConfig{}
 	if err := k.init(kubeconfigFilename); err != nil {
 		return nil, err
 	}
@@ -31,7 +31,7 @@ func NewKubeconfig(kubeconfigFilename string) (*Kubeconfig, error) {
 	return k, nil
 }
 
-func (k *Kubeconfig) init(kubeconfigFilename string) error {
+func (k *KubeConfig) init(kubeconfigFilename string) error {
 	k.KubeconfigFilename = kubeconfigFilename
 	if _, err := os.Stat(k.KubeconfigFilename); err != nil {
 		return fmt.Errorf("kubeconfig file not accessible: %w", err)
@@ -40,7 +40,7 @@ func (k *Kubeconfig) init(kubeconfigFilename string) error {
 	return nil
 }
 
-func (k *Kubeconfig) LoadContexts() (*api.Config, error) {
+func (k *KubeConfig) LoadContexts() (*api.Config, error) {
 	config, err := clientcmd.LoadFromFile(k.KubeconfigFilename)
 	if err != nil {
 		return nil, fmt.Errorf("could not load kubeconfig from %s: %w", k.KubeconfigFilename, err)
@@ -49,7 +49,7 @@ func (k *Kubeconfig) LoadContexts() (*api.Config, error) {
 	return config, nil
 }
 
-func (k *Kubeconfig) GetCurrentContext() (string, error) {
+func (k *KubeConfig) GetCurrentContext() (string, error) {
 	config, err := k.LoadContexts()
 	if err != nil {
 		return "", err
@@ -61,7 +61,7 @@ func (k *Kubeconfig) GetCurrentContext() (string, error) {
 	return config.CurrentContext, nil
 }
 
-func (k *Kubeconfig) SetContext(contextName string) error {
+func (k *KubeConfig) SetContext(contextName string) error {
 	config, err := k.LoadContexts()
 	if err != nil {
 		return err
@@ -80,7 +80,7 @@ func (k *Kubeconfig) SetContext(contextName string) error {
 	return nil
 }
 
-func (k *Kubeconfig) GetContextNames() ([]string, error) {
+func (k *KubeConfig) GetContextNames() ([]string, error) {
 	config, err := k.LoadContexts()
 	if err != nil {
 		return nil, err
@@ -94,7 +94,7 @@ func (k *Kubeconfig) GetContextNames() ([]string, error) {
 	return contextNames, nil
 }
 
-func (k *Kubeconfig) GetCurrentNamespace() (string, error) {
+func (k *KubeConfig) GetCurrentNamespace() (string, error) {
 	config, err := k.LoadContexts()
 	if err != nil {
 		return "", err
@@ -113,7 +113,7 @@ func (k *Kubeconfig) GetCurrentNamespace() (string, error) {
 	return ctx.Namespace, nil
 }
 
-func (k *Kubeconfig) SetNamespace(namespace string) error {
+func (k *KubeConfig) SetNamespace(namespace string) error {
 	config, err := k.LoadContexts()
 	if err != nil {
 		return err
