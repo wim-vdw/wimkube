@@ -64,10 +64,7 @@ func showContextMenu() error {
 		if err != nil {
 			return err
 		}
-		contextNames, err := kc.GetContextNames()
-		if err != nil {
-			return err
-		}
+		contextNames := kc.GetContextNames()
 		if len(contextNames) == 0 {
 			return fmt.Errorf("no contexts found in kubeconfig")
 		}
@@ -96,10 +93,7 @@ func execContextList(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	contextNames, err := kc.GetContextNames()
-	if err != nil {
-		return err
-	}
+	contextNames := kc.GetContextNames()
 	if len(contextNames) == 0 {
 		fmt.Println("No contexts found in kubeconfig.")
 		return nil

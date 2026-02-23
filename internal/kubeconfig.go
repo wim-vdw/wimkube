@@ -81,14 +81,15 @@ func (k *KubeConfig) SetContext(contextName string) error {
 }
 
 // GetContextNames returns a sorted list of all context names available in the kubeconfig file.
-func (k *KubeConfig) GetContextNames() ([]string, error) {
+// It does not return an error since it can return an empty list if there are no contexts, but the init function already checks for that case.
+func (k *KubeConfig) GetContextNames() []string {
 	contextNames := make([]string, 0, len(k.Config.Contexts))
 	for context := range k.Config.Contexts {
 		contextNames = append(contextNames, context)
 	}
 	sort.Strings(contextNames)
 
-	return contextNames, nil
+	return contextNames
 }
 
 // GetCurrentNamespace returns the namespace for the current context in the kubeconfig file.
