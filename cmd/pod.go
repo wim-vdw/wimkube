@@ -39,7 +39,7 @@ var podContainerExecCmd = &cobra.Command{
 
 func showPodMenu() error {
 	var option, podName, containerName string
-	kc, err := internal.NewKubeconfig(viper.GetString("kubeconfig"))
+	kc, err := internal.NewKubeConfig(viper.GetString("kubeconfig"))
 	if err != nil {
 		return err
 	}
@@ -144,7 +144,7 @@ func showPodMenu() error {
 }
 
 func execPodList(cmd *cobra.Command, args []string) error {
-	kc, err := internal.NewKubeconfig(viper.GetString("kubeconfig"))
+	kc, err := internal.NewKubeConfig(viper.GetString("kubeconfig"))
 	if err != nil {
 		return err
 	}
@@ -177,7 +177,7 @@ func execPodList(cmd *cobra.Command, args []string) error {
 
 func execPodContainerList(cmd *cobra.Command, args []string) error {
 	podName := args[0]
-	kc, err := internal.NewKubeconfig(viper.GetString("kubeconfig"))
+	kc, err := internal.NewKubeConfig(viper.GetString("kubeconfig"))
 	if err != nil {
 		return err
 	}
@@ -207,7 +207,7 @@ func execPodContainerList(cmd *cobra.Command, args []string) error {
 func execPodContainerExec(cmd *cobra.Command, args []string) error {
 	podName := args[0]
 	containerName := args[1]
-	kc, err := internal.NewKubeconfig(viper.GetString("kubeconfig"))
+	kc, err := internal.NewKubeConfig(viper.GetString("kubeconfig"))
 	if err != nil {
 		return err
 	}

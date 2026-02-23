@@ -22,7 +22,7 @@ type KubeConfigManager interface {
 	SetNamespace(namespace string) error
 }
 
-func NewKubeconfig(filePath string) (*KubeConfig, error) {
+func NewKubeConfig(filePath string) (*KubeConfig, error) {
 	k := &KubeConfig{}
 	if err := k.init(filePath); err != nil {
 		return nil, err

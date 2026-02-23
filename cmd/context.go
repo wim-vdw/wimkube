@@ -60,7 +60,7 @@ func showContextMenu() error {
 	case "2":
 		return execContextList(nil, nil)
 	case "3":
-		kc, err := internal.NewKubeconfig(viper.GetString("kubeconfig"))
+		kc, err := internal.NewKubeConfig(viper.GetString("kubeconfig"))
 		if err != nil {
 			return err
 		}
@@ -92,7 +92,7 @@ func showContextMenu() error {
 }
 
 func execContextList(cmd *cobra.Command, args []string) error {
-	kc, err := internal.NewKubeconfig(viper.GetString("kubeconfig"))
+	kc, err := internal.NewKubeConfig(viper.GetString("kubeconfig"))
 	if err != nil {
 		return err
 	}
@@ -112,7 +112,7 @@ func execContextList(cmd *cobra.Command, args []string) error {
 }
 
 func execContextGet(cmd *cobra.Command, args []string) error {
-	kc, err := internal.NewKubeconfig(viper.GetString("kubeconfig"))
+	kc, err := internal.NewKubeConfig(viper.GetString("kubeconfig"))
 	if err != nil {
 		return err
 	}
@@ -127,7 +127,7 @@ func execContextGet(cmd *cobra.Command, args []string) error {
 
 func execContextSet(cmd *cobra.Command, args []string) error {
 	contextName := args[0]
-	kc, err := internal.NewKubeconfig(viper.GetString("kubeconfig"))
+	kc, err := internal.NewKubeConfig(viper.GetString("kubeconfig"))
 	if err != nil {
 		return err
 	}

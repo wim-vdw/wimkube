@@ -60,7 +60,7 @@ func showNamespaceMenu() error {
 	case "2":
 		return execNamespaceList(nil, nil)
 	case "3":
-		kc, err := internal.NewKubeconfig(viper.GetString("kubeconfig"))
+		kc, err := internal.NewKubeConfig(viper.GetString("kubeconfig"))
 		if err != nil {
 			return err
 		}
@@ -98,7 +98,7 @@ func showNamespaceMenu() error {
 }
 
 func execNamespaceList(cmd *cobra.Command, args []string) error {
-	kc, err := internal.NewKubeconfig(viper.GetString("kubeconfig"))
+	kc, err := internal.NewKubeConfig(viper.GetString("kubeconfig"))
 	if err != nil {
 		return err
 	}
@@ -122,7 +122,7 @@ func execNamespaceList(cmd *cobra.Command, args []string) error {
 }
 
 func execNamespaceGet(cmd *cobra.Command, args []string) error {
-	kc, err := internal.NewKubeconfig(viper.GetString("kubeconfig"))
+	kc, err := internal.NewKubeConfig(viper.GetString("kubeconfig"))
 	if err != nil {
 		return err
 	}
@@ -137,7 +137,7 @@ func execNamespaceGet(cmd *cobra.Command, args []string) error {
 
 func execNamespaceSet(cmd *cobra.Command, args []string) error {
 	namespace := args[0]
-	kc, err := internal.NewKubeconfig(viper.GetString("kubeconfig"))
+	kc, err := internal.NewKubeConfig(viper.GetString("kubeconfig"))
 	if err != nil {
 		return err
 	}
