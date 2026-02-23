@@ -81,7 +81,7 @@ func showPodMenu() error {
 			return err
 		}
 		if len(pods) == 0 {
-			fmt.Printf("No resources found in %s namespace.", currentNamespace)
+			fmt.Printf("No resources found in %s namespace.\n", currentNamespace)
 			return nil
 		}
 		title := fmt.Sprintf("Select a pod (namespace: %s)", currentNamespace)
@@ -104,7 +104,7 @@ func showPodMenu() error {
 			return err
 		}
 		if len(pods) == 0 {
-			fmt.Printf("No resources found in %s namespace.", currentNamespace)
+			fmt.Printf("No resources found in %s namespace.\n", currentNamespace)
 			return nil
 		}
 		title := fmt.Sprintf("Select a pod (namespace: %s)", currentNamespace)
@@ -165,7 +165,7 @@ func execPodList(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	if len(pods) == 0 {
-		fmt.Printf("No resources found in %s namespace.", currentNamespace)
+		fmt.Printf("No resources found in %s namespace.\n", currentNamespace)
 		return nil
 	}
 	for _, podName := range pods {
