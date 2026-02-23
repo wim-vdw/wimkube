@@ -13,7 +13,7 @@ type KubeConfig struct {
 	FilePath string
 }
 
-type KubeconfigManager interface {
+type KubeConfigManager interface {
 	LoadContexts() (*api.Config, error)
 	GetCurrentContext() (string, error)
 	SetContext(contextName string) error
