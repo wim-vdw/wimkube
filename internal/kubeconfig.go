@@ -11,10 +11,10 @@ import (
 
 type KubeConfig struct {
 	FilePath string
+	Config   *api.Config
 }
 
 type KubeConfigManager interface {
-	LoadContexts() (*api.Config, error)
 	GetCurrentContext() (string, error)
 	SetContext(contextName string) error
 	GetContextNames() ([]string, error)
@@ -36,44 +36,35 @@ func (k *KubeConfig) init(filePath string) error {
 	if _, err := os.Stat(k.FilePath); err != nil {
 		return fmt.Errorf("kubeconfig file not accessible: %w", err)
 	}
+	config, err := clientcmd.LoadFromFile(k.FilePath)
+	if err != nil {
+		return fmt.Errorf("could not load kubeconfig from %s: %w", k.FilePath, err)
+	}
+	if len(config.Contexts) == 0 {
+		return fmt.Errorf("no contexts found in kubeconfig: %s", k.FilePath)
+	}
+	k.Config = config
 
 	return nil
 }
 
-func (k *KubeConfig) LoadContexts() (*api.Config, error) {
-	config, err := clientcmd.LoadFromFile(k.FilePath)
-	if err != nil {
-		return nil, fmt.Errorf("could not load kubeconfig from %s: %w", k.FilePath, err)
-	}
-
-	return config, nil
-}
-
 func (k *KubeConfig) GetCurrentContext() (string, error) {
-	config, err := k.LoadContexts()
-	if err != nil {
-		return "", err
-	}
-	if config.CurrentContext == "" {
+	if k.Config.CurrentContext == "" {
 		return "", fmt.Errorf("no current context set in kubeconfig")
 	}
 
-	return config.CurrentContext, nil
+	return k.Config.CurrentContext, nil
 }
 
 func (k *KubeConfig) SetContext(contextName string) error {
-	config, err := k.LoadContexts()
-	if err != nil {
-		return err
-	}
-	if _, exists := config.Contexts[contextName]; !exists {
+	if _, exists := k.Config.Contexts[contextName]; !exists {
 		return fmt.Errorf("context '%s' does not exist", contextName)
 	}
-	if config.CurrentContext == contextName {
+	if k.Config.CurrentContext == contextName {
 		return nil
 	}
-	config.CurrentContext = contextName
-	if err := clientcmd.WriteToFile(*config, k.FilePath); err != nil {
+	k.Config.CurrentContext = contextName
+	if err := clientcmd.WriteToFile(*k.Config, k.FilePath); err != nil {
 		return fmt.Errorf("could not write kubeconfig: %w", err)
 	}
 
@@ -81,12 +72,8 @@ func (k *KubeConfig) SetContext(contextName string) error {
 }
 
 func (k *KubeConfig) GetContextNames() ([]string, error) {
-	config, err := k.LoadContexts()
-	if err != nil {
-		return nil, err
-	}
-	contextNames := make([]string, 0, len(config.Contexts))
-	for context := range config.Contexts {
+	contextNames := make([]string, 0, len(k.Config.Contexts))
+	for context := range k.Config.Contexts {
 		contextNames = append(contextNames, context)
 	}
 	sort.Strings(contextNames)
@@ -95,16 +82,12 @@ func (k *KubeConfig) GetContextNames() ([]string, error) {
 }
 
 func (k *KubeConfig) GetCurrentNamespace() (string, error) {
-	config, err := k.LoadContexts()
-	if err != nil {
-		return "", err
-	}
-	if config.CurrentContext == "" {
+	if k.Config.CurrentContext == "" {
 		return "", fmt.Errorf("no current context set in kubeconfig")
 	}
-	ctx, exists := config.Contexts[config.CurrentContext]
+	ctx, exists := k.Config.Contexts[k.Config.CurrentContext]
 	if !exists {
-		return "", fmt.Errorf("current context '%s' does not exist", config.CurrentContext)
+		return "", fmt.Errorf("current context '%s' does not exist", k.Config.CurrentContext)
 	}
 	if ctx.Namespace == "" {
 		return "default", nil
@@ -114,22 +97,18 @@ func (k *KubeConfig) GetCurrentNamespace() (string, error) {
 }
 
 func (k *KubeConfig) SetNamespace(namespace string) error {
-	config, err := k.LoadContexts()
-	if err != nil {
-		return err
-	}
-	if config.CurrentContext == "" {
+	if k.Config.CurrentContext == "" {
 		return fmt.Errorf("no current context set in kubeconfig")
 	}
-	ctx, exists := config.Contexts[config.CurrentContext]
+	context, exists := k.Config.Contexts[k.Config.CurrentContext]
 	if !exists {
-		return fmt.Errorf("current context '%s' does not exist", config.CurrentContext)
+		return fmt.Errorf("current context '%s' does not exist", k.Config.CurrentContext)
 	}
-	if ctx.Namespace == namespace {
+	if context.Namespace == namespace {
 		return nil
 	}
-	ctx.Namespace = namespace
-	if err := clientcmd.WriteToFile(*config, k.FilePath); err != nil {
+	context.Namespace = namespace
+	if err := clientcmd.WriteToFile(*k.Config, k.FilePath); err != nil {
 		return fmt.Errorf("could not write kubeconfig: %w", err)
 	}
 
