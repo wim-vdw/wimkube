@@ -22,17 +22,17 @@ type KubeConfigManager interface {
 	SetNamespace(namespace string) error
 }
 
-func NewKubeconfig(kubeconfigFilename string) (*KubeConfig, error) {
+func NewKubeconfig(filePath string) (*KubeConfig, error) {
 	k := &KubeConfig{}
-	if err := k.init(kubeconfigFilename); err != nil {
+	if err := k.init(filePath); err != nil {
 		return nil, err
 	}
 
 	return k, nil
 }
 
-func (k *KubeConfig) init(kubeconfigFilename string) error {
-	k.FilePath = kubeconfigFilename
+func (k *KubeConfig) init(filePath string) error {
+	k.FilePath = filePath
 	if _, err := os.Stat(k.FilePath); err != nil {
 		return fmt.Errorf("kubeconfig file not accessible: %w", err)
 	}
