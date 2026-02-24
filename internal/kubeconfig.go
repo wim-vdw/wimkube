@@ -10,8 +10,8 @@ import (
 )
 
 type KubeConfig struct {
-	FilePath string
-	Config   *api.Config
+	filePath string
+	config   *api.Config
 }
 
 type KubeConfigManager interface {
@@ -37,18 +37,18 @@ func NewKubeConfig(filePath string) (*KubeConfig, error) {
 // It checks if the file is accessible and if it contains any contexts.
 // If the file cannot be loaded or if there are no contexts, it returns an error.
 func (k *KubeConfig) init(filePath string) error {
-	k.FilePath = filePath
-	if _, err := os.Stat(k.FilePath); err != nil {
+	k.filePath = filePath
+	if _, err := os.Stat(k.filePath); err != nil {
 		return fmt.Errorf("kubeconfig file not accessible: %w", err)
 	}
-	config, err := clientcmd.LoadFromFile(k.FilePath)
+	config, err := clientcmd.LoadFromFile(k.filePath)
 	if err != nil {
-		return fmt.Errorf("could not load kubeconfig from %s: %w", k.FilePath, err)
+		return fmt.Errorf("could not load kubeconfig from %s: %w", k.filePath, err)
 	}
 	if len(config.Contexts) == 0 {
-		return fmt.Errorf("no contexts found in kubeconfig: %s", k.FilePath)
+		return fmt.Errorf("no contexts found in kubeconfig: %s", k.filePath)
 	}
-	k.Config = config
+	k.config = config
 
 	return nil
 }
@@ -56,24 +56,24 @@ func (k *KubeConfig) init(filePath string) error {
 // GetCurrentContext returns the name of the current context set in the kubeconfig file.
 // It returns an error if there is no current context set.
 func (k *KubeConfig) GetCurrentContext() (string, error) {
-	if k.Config.CurrentContext == "" {
+	if k.config.CurrentContext == "" {
 		return "", fmt.Errorf("no current context set in kubeconfig")
 	}
 
-	return k.Config.CurrentContext, nil
+	return k.config.CurrentContext, nil
 }
 
 // SetContext sets the current context in the kubeconfig file.
 // It returns an error if the specified context does not exist or if there is an issue writing the updated kubeconfig back to the file.
 func (k *KubeConfig) SetContext(contextName string) error {
-	if _, exists := k.Config.Contexts[contextName]; !exists {
+	if _, exists := k.config.Contexts[contextName]; !exists {
 		return fmt.Errorf("context '%s' does not exist", contextName)
 	}
-	if k.Config.CurrentContext == contextName {
+	if k.config.CurrentContext == contextName {
 		return nil
 	}
-	k.Config.CurrentContext = contextName
-	if err := clientcmd.WriteToFile(*k.Config, k.FilePath); err != nil {
+	k.config.CurrentContext = contextName
+	if err := clientcmd.WriteToFile(*k.config, k.filePath); err != nil {
 		return fmt.Errorf("could not write kubeconfig: %w", err)
 	}
 
@@ -83,8 +83,8 @@ func (k *KubeConfig) SetContext(contextName string) error {
 // GetContextNames returns a sorted list of all context names available in the kubeconfig file.
 // It does not return an error since it can return an empty list if there are no contexts, but the init function already checks for that case.
 func (k *KubeConfig) GetContextNames() []string {
-	contextNames := make([]string, 0, len(k.Config.Contexts))
-	for context := range k.Config.Contexts {
+	contextNames := make([]string, 0, len(k.config.Contexts))
+	for context := range k.config.Contexts {
 		contextNames = append(contextNames, context)
 	}
 	sort.Strings(contextNames)
@@ -96,12 +96,12 @@ func (k *KubeConfig) GetContextNames() []string {
 // If the current context does not have a namespace set, it returns "default".
 // It returns an error if there is no current context or if the current context does not exist.
 func (k *KubeConfig) GetCurrentNamespace() (string, error) {
-	if k.Config.CurrentContext == "" {
+	if k.config.CurrentContext == "" {
 		return "", fmt.Errorf("no current context set in kubeconfig")
 	}
-	context, exists := k.Config.Contexts[k.Config.CurrentContext]
+	context, exists := k.config.Contexts[k.config.CurrentContext]
 	if !exists {
-		return "", fmt.Errorf("current context '%s' does not exist", k.Config.CurrentContext)
+		return "", fmt.Errorf("current context '%s' does not exist", k.config.CurrentContext)
 	}
 	if context.Namespace == "" {
 		return "default", nil
@@ -113,18 +113,18 @@ func (k *KubeConfig) GetCurrentNamespace() (string, error) {
 // SetNamespace sets the namespace for the current context in the kubeconfig file.
 // It returns an error if there is no current context or if the current context does not exist.
 func (k *KubeConfig) SetNamespace(namespace string) error {
-	if k.Config.CurrentContext == "" {
+	if k.config.CurrentContext == "" {
 		return fmt.Errorf("no current context set in kubeconfig")
 	}
-	context, exists := k.Config.Contexts[k.Config.CurrentContext]
+	context, exists := k.config.Contexts[k.config.CurrentContext]
 	if !exists {
-		return fmt.Errorf("current context '%s' does not exist", k.Config.CurrentContext)
+		return fmt.Errorf("current context '%s' does not exist", k.config.CurrentContext)
 	}
 	if context.Namespace == namespace {
 		return nil
 	}
 	context.Namespace = namespace
-	if err := clientcmd.WriteToFile(*k.Config, k.FilePath); err != nil {
+	if err := clientcmd.WriteToFile(*k.config, k.filePath); err != nil {
 		return fmt.Errorf("could not write kubeconfig: %w", err)
 	}
 
