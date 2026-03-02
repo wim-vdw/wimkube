@@ -45,7 +45,7 @@ var podContainerLogsCmd = &cobra.Command{
 }
 
 func showPodMenu() error {
-	var option, podName, containerName string
+	var option string
 	kc, err := internal.NewKubeConfig(viper.GetString("kubeconfig"))
 	if err != nil {
 		return err
@@ -71,6 +71,7 @@ func showPodMenu() error {
 					huh.NewOption("List all pods", "1"),
 					huh.NewOption("List all containers of a pod", "2"),
 					huh.NewOption("Execute an interactive shell in a container of a pod", "3"),
+					huh.NewOption("Get the logs of a container of a pod", "4"),
 				).
 				Value(&option),
 		),
@@ -92,6 +93,7 @@ func showPodMenu() error {
 			return nil
 		}
 		title := fmt.Sprintf("Select a pod (namespace: %s)", currentNamespace)
+		var podName string
 		form := huh.NewForm(
 			huh.NewGroup(
 				huh.NewSelect[string]().
@@ -106,48 +108,74 @@ func showPodMenu() error {
 		}
 		return execPodContainerList(nil, []string{podName})
 	case "3":
-		pods, err := c.GetPods(currentNamespace)
+		podName, containerName, err := selectPodAndContainer(currentNamespace, c)
 		if err != nil {
 			return err
 		}
-		if len(pods) == 0 {
-			fmt.Printf("No resources found in %s namespace.\n", currentNamespace)
+		if podName == "" {
 			return nil
 		}
-		title := fmt.Sprintf("Select a pod (namespace: %s)", currentNamespace)
-		form := huh.NewForm(
-			huh.NewGroup(
-				huh.NewSelect[string]().
-					Title(title).
-					Options(huh.NewOptions(pods...)...).
-					Value(&podName),
-			),
-		)
-		err = form.Run()
-		if err != nil {
-			return err
-		}
-		containers, err := c.GetContainers(currentNamespace, podName)
-		if err != nil {
-			return err
-		}
-		title = fmt.Sprintf("Select a container (namespace: %s, pod: %s)", currentNamespace, podName)
-		form = huh.NewForm(
-			huh.NewGroup(
-				huh.NewSelect[string]().
-					Title(title).
-					Options(huh.NewOptions(containers...)...).
-					Value(&containerName),
-			),
-		)
-		err = form.Run()
-		if err != nil {
-			return err
-		}
 		return execPodContainerExec(nil, []string{podName, containerName})
+	case "4":
+		podName, containerName, err := selectPodAndContainer(currentNamespace, c)
+		if err != nil {
+			return err
+		}
+		if podName == "" {
+			return nil
+		}
+		return execPodContainerLogs(nil, []string{podName, containerName})
 	}
 
 	return nil
+}
+
+func selectPodAndContainer(currentNamespace string, c *internal.Client) (string, string, error) {
+	pods, err := c.GetPods(currentNamespace)
+	if err != nil {
+		return "", "", err
+	}
+	if len(pods) == 0 {
+		fmt.Printf("No resources found in %s namespace.\n", currentNamespace)
+		return "", "", nil
+	}
+
+	var podName string
+	title := fmt.Sprintf("Select a pod (namespace: %s)", currentNamespace)
+	form := huh.NewForm(
+		huh.NewGroup(
+			huh.NewSelect[string]().
+				Title(title).
+				Options(huh.NewOptions(pods...)...).
+				Value(&podName),
+		),
+	)
+	err = form.Run()
+	if err != nil {
+		return "", "", err
+	}
+
+	containers, err := c.GetContainers(currentNamespace, podName)
+	if err != nil {
+		return "", "", err
+	}
+
+	var containerName string
+	title = fmt.Sprintf("Select a container (namespace: %s, pod: %s)", currentNamespace, podName)
+	form = huh.NewForm(
+		huh.NewGroup(
+			huh.NewSelect[string]().
+				Title(title).
+				Options(huh.NewOptions(containers...)...).
+				Value(&containerName),
+		),
+	)
+	err = form.Run()
+	if err != nil {
+		return "", "", err
+	}
+
+	return podName, containerName, nil
 }
 
 func execPodList(cmd *cobra.Command, args []string) error {
