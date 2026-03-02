@@ -1,8 +1,10 @@
 package internal
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"io"
 	"os"
 	"time"
 
@@ -146,6 +148,32 @@ func (c *Client) ExecInContainer(namespace, podName, containerName string) error
 	}
 
 	return nil
+}
+
+// GetPodLogs retrieves the logs from a specific container in a pod.
+// It returns the logs as a string and an error if the logs cannot be retrieved.
+func (c *Client) GetPodLogs(namespace, podName, containerName string) (string, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(viper.GetInt("request-timeout"))*time.Second)
+	defer cancel()
+
+	logOptions := &corev1.PodLogOptions{
+		Container: containerName,
+	}
+
+	req := c.client.CoreV1().Pods(namespace).GetLogs(podName, logOptions)
+	podLogs, err := req.Stream(ctx)
+	if err != nil {
+		return "", fmt.Errorf("unable to get pod logs for %s in namespace %s: %w", podName, namespace, err)
+	}
+	defer podLogs.Close()
+
+	buf := new(bytes.Buffer)
+	_, err = io.Copy(buf, podLogs)
+	if err != nil && err != io.EOF {
+		return "", fmt.Errorf("unable to read pod logs: %w", err)
+	}
+
+	return buf.String(), nil
 }
 
 // setupTerminal puts the terminal into raw mode and returns the original terminal state.

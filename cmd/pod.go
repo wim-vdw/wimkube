@@ -37,6 +37,13 @@ var podContainerExecCmd = &cobra.Command{
 	RunE:  execPodContainerExec,
 }
 
+var podContainerLogsCmd = &cobra.Command{
+	Use:   "logs [pod-name] [container-name]",
+	Short: "Get the logs of a container of a pod.",
+	Args:  cobra.ExactArgs(2),
+	RunE:  execPodContainerLogs,
+}
+
 func showPodMenu() error {
 	var option, podName, containerName string
 	kc, err := internal.NewKubeConfig(viper.GetString("kubeconfig"))
@@ -231,9 +238,38 @@ func execPodContainerExec(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
+func execPodContainerLogs(cmd *cobra.Command, args []string) error {
+	podName := args[0]
+	containerName := args[1]
+	kc, err := internal.NewKubeConfig(viper.GetString("kubeconfig"))
+	if err != nil {
+		return err
+	}
+	currentContext, err := kc.GetCurrentContext()
+	if err != nil {
+		return err
+	}
+	c, err := internal.NewClient(viper.GetString("kubeconfig"), currentContext)
+	if err != nil {
+		return err
+	}
+	currentNamespace, err := kc.GetCurrentNamespace()
+	if err != nil {
+		return err
+	}
+	logs, err := c.GetPodLogs(currentNamespace, podName, containerName)
+	if err != nil {
+		return err
+	}
+	fmt.Println(logs)
+
+	return nil
+}
+
 func init() {
 	rootCmd.AddCommand(podCmd)
 	podCmd.AddCommand(podListCmd)
 	podCmd.AddCommand(podContainerListCmd)
 	podCmd.AddCommand(podContainerExecCmd)
+	podCmd.AddCommand(podContainerLogsCmd)
 }
