@@ -46,11 +46,7 @@ var podContainerLogsCmd = &cobra.Command{
 
 func showPodMenu() error {
 	var option string
-	kc, err := internal.NewKubeConfig(viper.GetString("kubeconfig"))
-	if err != nil {
-		return err
-	}
-	currentContext, err := kc.GetCurrentContext()
+	currentContext, err := kubeConfig.GetCurrentContext()
 	if err != nil {
 		return err
 	}
@@ -58,7 +54,7 @@ func showPodMenu() error {
 	if err != nil {
 		return err
 	}
-	currentNamespace, err := kc.GetCurrentNamespace()
+	currentNamespace, err := kubeConfig.GetCurrentNamespace()
 	if err != nil {
 		return err
 	}
@@ -179,11 +175,7 @@ func selectPodAndContainer(currentNamespace string, c *internal.Client) (string,
 }
 
 func execPodList(cmd *cobra.Command, args []string) error {
-	kc, err := internal.NewKubeConfig(viper.GetString("kubeconfig"))
-	if err != nil {
-		return err
-	}
-	currentContext, err := kc.GetCurrentContext()
+	currentContext, err := kubeConfig.GetCurrentContext()
 	if err != nil {
 		return err
 	}
@@ -191,7 +183,7 @@ func execPodList(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	currentNamespace, err := kc.GetCurrentNamespace()
+	currentNamespace, err := kubeConfig.GetCurrentNamespace()
 	if err != nil {
 		return err
 	}
@@ -212,11 +204,7 @@ func execPodList(cmd *cobra.Command, args []string) error {
 
 func execPodContainerList(cmd *cobra.Command, args []string) error {
 	podName := args[0]
-	kc, err := internal.NewKubeConfig(viper.GetString("kubeconfig"))
-	if err != nil {
-		return err
-	}
-	currentContext, err := kc.GetCurrentContext()
+	currentContext, err := kubeConfig.GetCurrentContext()
 	if err != nil {
 		return err
 	}
@@ -224,7 +212,7 @@ func execPodContainerList(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	currentNamespace, err := kc.GetCurrentNamespace()
+	currentNamespace, err := kubeConfig.GetCurrentNamespace()
 	if err != nil {
 		return err
 	}
@@ -242,11 +230,7 @@ func execPodContainerList(cmd *cobra.Command, args []string) error {
 func execPodContainerExec(cmd *cobra.Command, args []string) error {
 	podName := args[0]
 	containerName := args[1]
-	kc, err := internal.NewKubeConfig(viper.GetString("kubeconfig"))
-	if err != nil {
-		return err
-	}
-	currentContext, err := kc.GetCurrentContext()
+	currentContext, err := kubeConfig.GetCurrentContext()
 	if err != nil {
 		return err
 	}
@@ -254,7 +238,7 @@ func execPodContainerExec(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	currentNamespace, err := kc.GetCurrentNamespace()
+	currentNamespace, err := kubeConfig.GetCurrentNamespace()
 	if err != nil {
 		return err
 	}
@@ -269,11 +253,7 @@ func execPodContainerExec(cmd *cobra.Command, args []string) error {
 func execPodContainerLogs(cmd *cobra.Command, args []string) error {
 	podName := args[0]
 	containerName := args[1]
-	kc, err := internal.NewKubeConfig(viper.GetString("kubeconfig"))
-	if err != nil {
-		return err
-	}
-	currentContext, err := kc.GetCurrentContext()
+	currentContext, err := kubeConfig.GetCurrentContext()
 	if err != nil {
 		return err
 	}
@@ -281,7 +261,7 @@ func execPodContainerLogs(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	currentNamespace, err := kc.GetCurrentNamespace()
+	currentNamespace, err := kubeConfig.GetCurrentNamespace()
 	if err != nil {
 		return err
 	}

@@ -5,8 +5,6 @@ import (
 
 	"charm.land/huh/v2"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
-	"github.com/wim-vdw/wimkube/internal"
 )
 
 var contextCmd = &cobra.Command{
@@ -60,12 +58,8 @@ func showContextMenu() error {
 	case "2":
 		return execContextList(nil, nil)
 	case "3":
-		kc, err := internal.NewKubeConfig(viper.GetString("kubeconfig"))
-		if err != nil {
-			return err
-		}
-		contextNames := kc.GetContextNames()
-		currentContext, _ := kc.GetCurrentContext()
+		contextNames := kubeConfig.GetContextNames()
+		currentContext, _ := kubeConfig.GetCurrentContext()
 		contextName = currentContext
 		form := huh.NewForm(
 			huh.NewGroup(
@@ -86,11 +80,7 @@ func showContextMenu() error {
 }
 
 func execContextList(cmd *cobra.Command, args []string) error {
-	kc, err := internal.NewKubeConfig(viper.GetString("kubeconfig"))
-	if err != nil {
-		return err
-	}
-	contextNames := kc.GetContextNames()
+	contextNames := kubeConfig.GetContextNames()
 	if len(contextNames) == 0 {
 		fmt.Println("No contexts found in kubeconfig.")
 		return nil
@@ -103,11 +93,7 @@ func execContextList(cmd *cobra.Command, args []string) error {
 }
 
 func execContextGet(cmd *cobra.Command, args []string) error {
-	kc, err := internal.NewKubeConfig(viper.GetString("kubeconfig"))
-	if err != nil {
-		return err
-	}
-	currentContext, err := kc.GetCurrentContext()
+	currentContext, err := kubeConfig.GetCurrentContext()
 	if err != nil {
 		return err
 	}
@@ -118,11 +104,7 @@ func execContextGet(cmd *cobra.Command, args []string) error {
 
 func execContextSet(cmd *cobra.Command, args []string) error {
 	contextName := args[0]
-	kc, err := internal.NewKubeConfig(viper.GetString("kubeconfig"))
-	if err != nil {
-		return err
-	}
-	err = kc.SetContext(contextName)
+	err := kubeConfig.SetContext(contextName)
 	if err != nil {
 		return err
 	}

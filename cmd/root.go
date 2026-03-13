@@ -7,12 +7,18 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/wim-vdw/wimkube/internal"
 )
+
+var kubeConfig *internal.KubeConfig
 
 var rootCmd = &cobra.Command{
 	Use:   "wimkube",
 	Short: "Interactive Kubernetes CLI.",
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		if !cmd.HasParent() {
+			return nil
+		}
 		if viper.GetString("kubeconfig") == "" {
 			homeDir, err := os.UserHomeDir()
 			if err != nil {
@@ -20,6 +26,11 @@ var rootCmd = &cobra.Command{
 			}
 			viper.Set("kubeconfig", filepath.Join(homeDir, ".kube", "config"))
 		}
+		k, err := internal.NewKubeConfig(viper.GetString("kubeconfig"))
+		if err != nil {
+			return err
+		}
+		kubeConfig = k
 		return nil
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {

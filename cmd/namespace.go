@@ -60,11 +60,7 @@ func showNamespaceMenu() error {
 	case "2":
 		return execNamespaceList(nil, nil)
 	case "3":
-		kc, err := internal.NewKubeConfig(viper.GetString("kubeconfig"))
-		if err != nil {
-			return err
-		}
-		currentContext, err := kc.GetCurrentContext()
+		currentContext, err := kubeConfig.GetCurrentContext()
 		if err != nil {
 			return err
 		}
@@ -76,7 +72,7 @@ func showNamespaceMenu() error {
 		if err != nil {
 			return err
 		}
-		currentNamespace, _ := kc.GetCurrentNamespace()
+		currentNamespace, _ := kubeConfig.GetCurrentNamespace()
 		namespace = currentNamespace
 		title := fmt.Sprintf("Select a namespace (context: %s)", currentContext)
 		form := huh.NewForm(
@@ -98,11 +94,7 @@ func showNamespaceMenu() error {
 }
 
 func execNamespaceList(cmd *cobra.Command, args []string) error {
-	kc, err := internal.NewKubeConfig(viper.GetString("kubeconfig"))
-	if err != nil {
-		return err
-	}
-	currentContext, err := kc.GetCurrentContext()
+	currentContext, err := kubeConfig.GetCurrentContext()
 	if err != nil {
 		return err
 	}
@@ -122,11 +114,7 @@ func execNamespaceList(cmd *cobra.Command, args []string) error {
 }
 
 func execNamespaceGet(cmd *cobra.Command, args []string) error {
-	kc, err := internal.NewKubeConfig(viper.GetString("kubeconfig"))
-	if err != nil {
-		return err
-	}
-	currentNamespace, err := kc.GetCurrentNamespace()
+	currentNamespace, err := kubeConfig.GetCurrentNamespace()
 	if err != nil {
 		return err
 	}
@@ -137,11 +125,7 @@ func execNamespaceGet(cmd *cobra.Command, args []string) error {
 
 func execNamespaceSet(cmd *cobra.Command, args []string) error {
 	namespace := args[0]
-	kc, err := internal.NewKubeConfig(viper.GetString("kubeconfig"))
-	if err != nil {
-		return err
-	}
-	err = kc.SetNamespace(namespace)
+	err := kubeConfig.SetNamespace(namespace)
 	if err != nil {
 		return err
 	}
