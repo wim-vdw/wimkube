@@ -16,6 +16,8 @@ var versionCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		fmt.Println("Version:   ", rootCmd.Version)
 		fmt.Println("Go version:", runtime.Version())
+		fmt.Println("Git commit:", commit)
+		fmt.Println("Build time:", buildTime)
 		fmt.Println("OS/Arch:   ", runtime.GOOS+"/"+runtime.GOARCH)
 		return nil
 	},

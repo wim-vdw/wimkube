@@ -42,6 +42,18 @@ func SetVersion(version string) {
 	rootCmd.Version = version
 }
 
+var commit string
+
+func SetCommit(commitHash string) {
+	commit = commitHash
+}
+
+var buildTime string
+
+func SetBuildTime(bt string) {
+	buildTime = bt
+}
+
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
@@ -50,7 +62,7 @@ func Execute() {
 
 func init() {
 	rootCmd.PersistentFlags().BoolP("help", "h", false, "Display this help message.")
-	rootCmd.Flags().BoolP("version", "v", false, "Display version info.")
+	rootCmd.Flags().BoolP("version", "v", false, "Display version information.")
 	rootCmd.PersistentFlags().StringP("kubeconfig", "", "", "Path to the kubeconfig file to use. If not specified, the default kubeconfig will be used.")
 	rootCmd.PersistentFlags().IntP("request-timeout", "t", 30, "Timeout in seconds for Kubernetes API requests.")
 	rootCmd.SetVersionTemplate("wimkube version: {{ .Version }}\n")
