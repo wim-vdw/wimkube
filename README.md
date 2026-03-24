@@ -34,6 +34,11 @@ brew install wimkube
 
 Supports both Apple Silicon (arm64) and Intel (amd64) Macs.
 
+### Download Pre-built Release
+
+Pre-built binaries are available for macOS, Linux, and Windows on the
+[GitHub Releases](https://github.com/wim-vdw/wimkube/releases) page.
+
 ### Build from Source
 
 ```bash
