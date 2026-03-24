@@ -19,6 +19,21 @@ command-line interface.
 - Access to a Kubernetes cluster
 - kubectl configured with valid kubeconfig
 
+### Homebrew (macOS)
+
+```bash
+brew install wim-vdw/tap/wimkube
+```
+
+Or using a two-step tap:
+
+```bash
+brew tap wim-vdw/tap
+brew install wimkube
+```
+
+Supports both Apple Silicon (arm64) and Intel (amd64) Macs.
+
 ### Build from Source
 
 ```bash
