@@ -213,12 +213,6 @@ wimkube/
 └── README.md
 ```
 
-### Building
-
-```bash
-go build -o wimkube
-```
-
 ## License
 
 See [LICENSE](LICENSE) file for details.
