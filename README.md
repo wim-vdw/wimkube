@@ -7,7 +7,7 @@ command-line interface.
 
 - **Context Management**: Switch between and manage Kubernetes contexts
 - **Namespace Management**: View and switch between namespaces
-- **Pod Operations**: List pods, view containers, and execute interactive shells
+- **Pod Operations**: List pods, view containers, execute interactive shells, and retrieve container logs
 - **Interactive Menus**: User-friendly interactive prompts for all operations
 - **Direct Commands**: Support for both interactive and direct command execution
 
@@ -41,6 +41,16 @@ go install github.com/wim-vdw/wimkube@latest
 - `-t, --request-timeout`: Timeout in seconds for Kubernetes API requests (default: 30)
 - `-h, --help`: Display help message
 - `-v, --version`: Display version information
+
+### Version Information
+
+**Display detailed version information:**
+
+```bash
+wimkube version
+```
+
+This shows the version, Go version, Git commit, build time, and OS/Arch.
 
 ### Context Management
 
@@ -120,6 +130,12 @@ wimkube pod list-containers <pod-name>
 wimkube pod exec <pod-name> <container-name>
 ```
 
+**Get the logs of a container:**
+
+```bash
+wimkube pod logs <pod-name> <container-name>
+```
+
 ## Examples
 
 ### Switch to a different context
@@ -152,6 +168,16 @@ wimkube pod
 wimkube pod exec my-pod my-container
 ```
 
+### Retrieve container logs
+
+```bash
+# Interactive - follow the prompts
+wimkube pod
+
+# Direct command
+wimkube pod logs my-pod my-container
+```
+
 ### Use custom kubeconfig
 
 ```bash
@@ -162,9 +188,10 @@ wimkube --kubeconfig /path/to/kubeconfig context list
 
 - [cobra](https://github.com/spf13/cobra) - CLI framework
 - [viper](https://github.com/spf13/viper) - Configuration management
-- [huh](https://github.com/charmbracelet/huh) - Interactive forms and prompts
+- [huh](https://charm.land/huh/v2) - Interactive forms and prompts
 - [client-go](https://github.com/kubernetes/client-go) - Kubernetes API client
 - [kubectl](https://github.com/kubernetes/kubectl) - Kubernetes command-line tool library
+- [term](https://pkg.go.dev/golang.org/x/term) - Terminal handling
 
 ## Development
 
@@ -176,7 +203,8 @@ wimkube/
 │   ├── root.go       # Root command and configuration
 │   ├── context.go    # Context management commands
 │   ├── namespace.go  # Namespace management commands
-│   └── pod.go        # Pod management commands
+│   ├── pod.go        # Pod management commands
+│   └── version.go    # Version command
 ├── internal/
 │   ├── client.go     # Kubernetes client wrapper
 │   └── kubeconfig.go # Kubeconfig operations
