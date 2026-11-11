@@ -1,13 +1,13 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/wim-vdw/wimkube/internal"
+	"k8s.io/client-go/tools/clientcmd"
 )
 
 var kubeConfig *internal.KubeConfig
@@ -20,11 +20,11 @@ var rootCmd = &cobra.Command{
 			return nil
 		}
 		if viper.GetString("kubeconfig") == "" {
-			homeDir, err := os.UserHomeDir()
-			if err != nil {
-				return fmt.Errorf("could not determine home directory: %w", err)
+			if env := os.Getenv("KUBECONFIG"); env != "" {
+				viper.Set("kubeconfig", filepath.SplitList(env)[0])
+			} else {
+				viper.Set("kubeconfig", clientcmd.RecommendedHomeFile)
 			}
-			viper.Set("kubeconfig", filepath.Join(homeDir, ".kube", "config"))
 		}
 		k, err := internal.NewKubeConfig(viper.GetString("kubeconfig"))
 		if err != nil {
@@ -63,7 +63,7 @@ func Execute() {
 func init() {
 	rootCmd.PersistentFlags().BoolP("help", "h", false, "Display this help message.")
 	rootCmd.Flags().BoolP("version", "v", false, "Display version information.")
-	rootCmd.PersistentFlags().StringP("kubeconfig", "", "", "Path to the kubeconfig file to use. If not specified, the default kubeconfig will be used.")
+	rootCmd.PersistentFlags().StringP("kubeconfig", "", "", "Path to the kubeconfig file to use. If not specified, $KUBECONFIG or ~/.kube/config will be used.")
 	rootCmd.PersistentFlags().IntP("request-timeout", "t", 30, "Timeout in seconds for Kubernetes API requests.")
 	rootCmd.SetVersionTemplate("wimkube version: {{ .Version }}\n")
 	rootCmd.CompletionOptions.DisableDefaultCmd = true
