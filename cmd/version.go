@@ -25,6 +25,14 @@ var versionCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(versionCmd)
-	_ = versionCmd.InheritedFlags().MarkHidden("kubeconfig")
-	_ = versionCmd.InheritedFlags().MarkHidden("request-timeout")
+	// Hide flags only while rendering this command's help; the flags are shared with rootCmd.
+	versionCmd.SetHelpFunc(func(cmd *cobra.Command, args []string) {
+		for _, name := range []string{"kubeconfig", "request-timeout"} {
+			if f := rootCmd.PersistentFlags().Lookup(name); f != nil {
+				f.Hidden = true
+				defer func() { f.Hidden = false }()
+			}
+		}
+		rootCmd.HelpFunc()(cmd, args)
+	})
 }
