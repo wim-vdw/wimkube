@@ -15,7 +15,7 @@ command-line interface.
 
 ### Prerequisites
 
-- Go 1.26 or later
+- Go 1.27 or later
 - Access to a Kubernetes cluster
 - kubectl configured with valid kubeconfig
 
@@ -57,7 +57,7 @@ go install github.com/wim-vdw/wimkube@latest
 
 ### Global Flags
 
-- `--kubeconfig`: Path to the kubeconfig file (default: `~/.kube/config`)
+- `--kubeconfig`: Path to the kubeconfig file to use. If not specified, `$KUBECONFIG` is used (first entry when it contains multiple paths), otherwise `~/.kube/config`
 - `-t, --request-timeout`: Timeout in seconds for Kubernetes API requests (default: 30)
 - `-h, --help`: Display help message
 - `-v, --version`: Display version information
