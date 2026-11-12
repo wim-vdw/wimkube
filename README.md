@@ -15,9 +15,8 @@ command-line interface.
 
 ### Prerequisites
 
-- Go 1.27 or later
 - Access to a Kubernetes cluster
-- kubectl configured with valid kubeconfig
+- A valid kubeconfig file
 
 ### Homebrew (macOS)
 
@@ -41,6 +40,8 @@ Pre-built binaries are available for macOS, Linux, and Windows on the
 
 ### Build from Source
 
+Requires Go 1.27 or later.
+
 ```bash
 git clone https://github.com/wim-vdw/wimkube.git
 cd wimkube
@@ -48,6 +49,8 @@ go build -o wimkube
 ```
 
 ### Install
+
+Requires Go 1.27 or later.
 
 ```bash
 go install github.com/wim-vdw/wimkube@latest
@@ -60,7 +63,10 @@ go install github.com/wim-vdw/wimkube@latest
 - `--kubeconfig`: Path to the kubeconfig file to use. If not specified, `$KUBECONFIG` is used (first entry when it contains multiple paths), otherwise `~/.kube/config`
 - `-t, --request-timeout`: Timeout in seconds for Kubernetes API requests (default: 30)
 - `-h, --help`: Display help message
-- `-v, --version`: Display version information
+
+### Root Flags
+
+- `-v, --version`: Display version information (only available on the root command: `wimkube --version`)
 
 ### Version Information
 
